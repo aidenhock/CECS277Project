@@ -1,3 +1,5 @@
+package FileManager;
+
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -6,25 +8,38 @@ import javax.swing.*;
 
 public class GUI extends JFrame{
 	JPanel panel, topPanel;
-	JMenuBar menu;
+	JMenuBar menu, status;
+	JDesktopPane desktop;
 	
 	public GUI() {
 		panel = new JPanel();
 		topPanel = new JPanel();
 		menu = new JMenuBar();
+		desktop = new JDesktopPane();
+		status = new JMenuBar();
 	}
 
 	public void go() {
 		this.setTitle("CECS 277 File Manger");
 		panel.setLayout(new BorderLayout());
 		topPanel.setLayout(new BorderLayout());
+
 		buildMenu();
+		buildStatusBar();
+		buildToolBar();
+		topPanel.add(desktop, BorderLayout.CENTER);
+		FileFrame ff = new FileFrame();
+		desktop.add(ff);
 
 		panel.add(topPanel, BorderLayout.CENTER);
 		this.add(panel);
 		this.setSize(1300, 800);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setVisible(true);
+
+	}
+
+	private void buildToolBar() {
 
 	}
 
@@ -76,6 +91,12 @@ public class GUI extends JFrame{
 		menu.add(window);
 		menu.add(help);
 		panel.add(menu, BorderLayout.NORTH);
+	}
+
+	public void buildStatusBar() {
+		JLabel size = new JLabel("Size in GB:");
+		status.add(size);
+		topPanel.add(status, BorderLayout.SOUTH);
 	}
 
 
