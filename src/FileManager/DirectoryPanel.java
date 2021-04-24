@@ -8,6 +8,7 @@ public class DirectoryPanel extends JPanel {
 
     public DirectoryPanel(){
         scrollPane.setViewportView(this.dirTree);
+        add(scrollPane);
     }
 }
 
