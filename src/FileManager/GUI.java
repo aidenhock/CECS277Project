@@ -1,8 +1,9 @@
 package FileManager;
 
-import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.*;
+import java.awt.event.*;
+import java.io.File;
+import java.io.IOException;
 import javax.swing.*;
 
 public class GUI extends JFrame{
@@ -132,6 +133,15 @@ public class GUI extends JFrame{
 		@Override
 		public void actionPerformed(ActionEvent e) {
 
+		}
+	}
+
+	public void executeFile(String filePath) {
+		Desktop desktop = Desktop.getDesktop();
+		try {
+			desktop.open(new File(filePath));
+		} catch (IOException ex) {
+			System.out.println(ex);
 		}
 	}
 }
