@@ -5,16 +5,22 @@ import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
 import javax.swing.*;
+import javax.swing.tree.DefaultMutableTreeNode;
 
 public class GUI extends JFrame{
-	JPanel panel, topPanel;
+	JPanel panel, topPanel, toolbar;
 	JMenuBar menu, status;
 	JDesktopPane desktop;
+	File[] paths;
+	JComboBox combo;
+	FileFrame ff;
+	boolean details = true;
 	
 	public GUI() {
 		panel = new JPanel();
 		topPanel = new JPanel();
 		menu = new JMenuBar();
+		toolbar = new JPanel();
 		desktop = new JDesktopPane();
 		status = new JMenuBar();
 	}
@@ -25,10 +31,10 @@ public class GUI extends JFrame{
 		topPanel.setLayout(new BorderLayout());
 
 		buildMenu();
-		buildStatusBar();
 		buildToolBar();
+		buildStatusBar();
 		topPanel.add(desktop, BorderLayout.CENTER);
-		FileFrame ff = new FileFrame();
+		ff = new FileFrame(paths[0]);
 		desktop.add(ff);
 
 		panel.add(topPanel, BorderLayout.CENTER);
@@ -39,8 +45,25 @@ public class GUI extends JFrame{
 
 	}
 
+	public void revalidateAndPaint() {
+		this.revalidate();
+		this.repaint();
+	}
 	private void buildToolBar() {
+		paths = File.listRoots();
+		combo = new JComboBox(paths);
+		JButton simple = new JButton("Simple");
+		JButton details = new JButton("Details");
 
+		combo.addItemListener(new ComboActionListener());
+		simple.addActionListener(new SDActionListener());
+		details.addActionListener(new SDActionListener());
+
+		toolbar.add(combo);
+		toolbar.add(simple);
+		toolbar.add(details);
+
+		topPanel.add(toolbar, BorderLayout.NORTH);
 	}
 
 	private void buildMenu() {
@@ -94,7 +117,12 @@ public class GUI extends JFrame{
 	}
 
 	public void buildStatusBar() {
-		JLabel size = new JLabel("Size in GB:");
+		status.removeAll();
+		File f = (File) combo.getSelectedItem();
+		JLabel size = new JLabel("Current Drive: " + f
+				+ "     Free Space: " + f.getFreeSpace()/(1024*1024*1024)
+				+ "GB     Used Space: " + (f.getTotalSpace() - f.getFreeSpace())/(1024*1024*1024)
+				+ "GB     Total Space: " + f.getTotalSpace()/(1024*1024*1024) + "GB");
 		status.add(size);
 		topPanel.add(status, BorderLayout.SOUTH);
 	}
@@ -118,6 +146,13 @@ public class GUI extends JFrame{
 				title = "Copying";
 			}
 			Dialog dlg = new Dialog(title);
+			FileFrame ff = (FileFrame) desktop.getSelectedFrame();
+			File fromFile = (File) ff.fileP.list.getSelectedValue();
+			dlg.setFromField(fromFile.getName());
+			DefaultMutableTreeNode node = (DefaultMutableTreeNode) ff.dirPanel.dirTree.getLastSelectedPathComponent();
+			FileNode currentDirectoryNode = (FileNode) node.getUserObject();
+			File currentDirectory = (File) currentDirectoryNode.getFile();
+			dlg.setCurrentDirectory("Current Directory: " + currentDirectory);
 			dlg.setVisible(true);
 		}
 	}
@@ -142,6 +177,44 @@ public class GUI extends JFrame{
 			desktop.open(new File(filePath));
 		} catch (IOException ex) {
 			System.out.println(ex);
+		}
+	}
+
+	private class ComboActionListener implements ItemListener {
+		@Override
+		public void itemStateChanged(ItemEvent e) {
+			if (e.getStateChange() == ItemEvent.SELECTED) {
+				File f = (File) combo.getSelectedItem();
+				buildStatusBar();
+				topPanel.revalidate();
+				topPanel.repaint();
+
+				FileFrame ff2 = new FileFrame(f);
+
+				desktop.add(ff2);
+				ff2.moveToFront();
+				revalidateAndPaint();
+
+			}
+
+
+		}
+	}
+
+	private class SDActionListener implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (e.getActionCommand().equals("Simple")) {
+				System.out.println("Simple");
+				ff.fileP.details = false;
+				ff.fileP.revalidate();
+				ff.fileP.repaint();
+			} else if (e.getActionCommand().equals("Details")) {
+				System.out.println("Details");
+				ff.fileP.details = true;
+				ff.fileP.revalidate();
+				ff.fileP.repaint();
+			}
 		}
 	}
 }

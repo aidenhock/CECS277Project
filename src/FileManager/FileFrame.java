@@ -1,14 +1,18 @@
 package FileManager;
 
 import javax.swing.*;
+import java.io.File;
 
 public class FileFrame extends JInternalFrame {
 
     JSplitPane split;
+    FilePanel fileP = new FilePanel();
+    DirectoryPanel dirPanel;
 
-    public FileFrame() {
-        split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, new DirectoryPanel(), new FilePanel());
-        this.setTitle("C:");
+    public FileFrame(File rootDirectory) {
+        dirPanel = new DirectoryPanel(fileP, rootDirectory);
+        split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, dirPanel, fileP);
+        this.setTitle(rootDirectory.getPath());
 
         this.getContentPane().add(split);
         this.setMaximizable(true);
